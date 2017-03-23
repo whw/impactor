@@ -1,0 +1,7 @@
+---
+project: skunk
+default-region: us-west-2
+code-bucket: gordon-skunk-69d5f387
+apps:
+  - gordon.contrib.lambdas
+  - pepe
