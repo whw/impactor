@@ -2,7 +2,5 @@ import json
 
 
 def handler(event, context):
-    data = "Hello World!"
-    print(data)
-    print("Received Event: " + json.dumps(event, indent=2))
-    return data
+    print("Received Status: \n" + json.dumps(event, indent=2))
+    return json.dumps({'orders': 0})

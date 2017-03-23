@@ -1,7 +1,7 @@
 lambdas:
-  helloworld:
-    code: helloworld
-    handler: code.handler
+  helloworld: # lambda name
+    code: helloworld # folder name
+    handler: code.handler # file.method_name
     runtime: python
     #description: Simple functions in python which says hello
     #role:
