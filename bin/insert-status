@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+import boto3
+import time
+
+dynamodb_client = boto3.client(
+    'dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+table_name = 'FleetStatus'
+
+
+item = {
+    'deviceId': {'S': 'abcdef'},
+    'timestamp': {'N': str(time.time())},
+    'status': {'N': str(-1)},
+}
+
+dynamodb_client.put_item(TableName=table_name, Item=item)

@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+
+import boto3
+
+dynamodb_client = boto3.client(
+    'dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+table_name = 'FleetStatus'
+
+print dynamodb_client.scan(TableName=table_name)
+
+# item = {'key': {'S': file_name}}
+# dynamodb_client.put_item(TableName=table_name, Item=item)
