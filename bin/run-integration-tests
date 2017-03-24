@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+import json
+import requests
+import unittest
+from pprint import pprint
+
+
+def send_status(status):
+    url = "https://rgx1pkb8se.execute-api.us-west-2.amazonaws.com/dev"
+    data = json.dumps({"status": status})
+
+    r = requests.post(url, data=data)
+    raw_response = r.json()
+    response = json.loads(raw_response)
+
+    return response["orders"]
+
+
+class TestIntegrationOracle(unittest.TestCase):
+
+    def test_orders(self):
+        self.assertEqual(send_status(-1), 0)
+        self.assertEqual(send_status(0), 1)
+        self.assertEqual(send_status(1), -1)
+
+
+unittest.main()
+print("Integration Tests")

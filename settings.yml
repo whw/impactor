@@ -12,6 +12,6 @@ apigateway:
     description: My Api example
     resources:
       /:
-        methods: GET
+        methods: POST
         integration:
           lambda: backend.oracle
