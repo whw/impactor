@@ -1,11 +1,6 @@
 import boto3
+import json
 import os
-import time
-
-# table_name = os.getenv('DYNAMO_TABLE_NAME', 'FleetStatus')
-# region = os.getenv('DYNAMO_REGION', 'us-west-2')
-# # 'http://localhost:8000'
-# dynamodb_url = os.getenv('DYNAMO_ENDPOINT_URL', None)
 
 
 def _get_config():
@@ -24,6 +19,9 @@ def _get_config():
     else:
         print('Invalid stage recieved: ' + stage)
         raise
+
+    # print(table_name + " " + region)
+    # print(dynamodb_url)
 
     return (table_name, region, dynamodb_url)
 
@@ -64,33 +62,16 @@ def create_table():
 
     dynamodb.get_waiter('table_exists').wait(TableName=table_name)
 
-    print("Created " + table_name + " in " +
-          region + " accessible at " + dynamodb_url)
-
-
-def insert_status(status):
-    table_name, region, dynamodb_url = _get_config()
-    dynamodb_client = boto3.client(
-        'dynamodb', region_name=region, endpoint_url=dynamodb_url)
-
-    # NOTE(whw): Numbers are always sent to DynamoDB as strings
-    item = {
-        'deviceId': {'S': 'abcdef'},
-        'timestamp': {'N': str(time.time())},
-        'status': {'N': str(status)},
-    }
-
-    dynamodb_client.put_item(TableName=table_name, Item=item)
+    print("Created " + table_name + " in " + region + " accessible at")
+    print(dynamodb_url)
 
 
 def number_of_items_in_table():
     table_name, region, dynamodb_url = _get_config()
-    dynamodb = boto3.resource(
+    dynamodb = boto3.client(
         'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
-    table = dynamodb.Table(table_name)
-
-    return table.item_count
+    return dynamodb.scan(TableName=table_name)['Count']
 
 
 def delete_table():
@@ -100,5 +81,6 @@ def delete_table():
 
     dynamodb.delete_table(TableName=table_name)
     dynamodb.get_waiter('table_not_exists').wait(TableName=table_name)
-    print("Deleted " + table_name + " in " +
-          region + " accessible at " + dynamodb_url)
+
+    print("Deleted " + table_name + " in " + region + " accessible at")
+    print(dynamodb_url)

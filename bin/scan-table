@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
 import boto3
+import os
+import sys
 
-dynamodb_client = boto3.client(
-    'dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
-table_name = 'FleetStatus'
+# So we can import from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from backend import dynamodb
 
-print dynamodb_client.scan(TableName=table_name)
+table_name, region, dynamodb_url = dynamodb._get_config()
+dynamodb = boto3.client(
+    'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+
+print dynamodb.scan(TableName=table_name)

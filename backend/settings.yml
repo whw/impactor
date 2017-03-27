@@ -1,7 +1,23 @@
 lambdas:
   oracle: # lambda name
     description: Function that responds to what the pi should do next
-    code: oracle.py
+    code: .
+    handler: oracle.handler
+    runtime: python
+    policies:
+      write_dynamo:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Action:
+              - "dynamodb:DescribeTable"
+              - "dynamodb:GetItem"
+              - "dynamodb:PutItem"
+              - "dynamodb:Query"
+              - "dynamodb:Scan"
+              - "dynamodb:UpdateItem"
+            Resource: "*"
+            Effect: "Allow"
 
 # lambdas:
 #   helloworld: # lambda name

@@ -6,6 +6,11 @@ apps:
   - gordon.contrib.lambdas
   - backend
 
+contexts:
+    default:
+        table_name: FleetStatus
+        region: us-west-2
+        dynamodb_url:
 
 apigateway:
   helloworldapi:
