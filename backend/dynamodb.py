@@ -2,11 +2,13 @@ import boto3
 import time
 
 table_name = 'FleetStatus'
+region = 'us-west-2'
+dynamodb_url = 'http://localhost:8000'
 
 
 def create_table():
     dynamodb = boto3.resource(
-        'dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+        'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
     table = dynamodb.create_table(
         TableName=table_name,
@@ -42,8 +44,9 @@ def create_table():
 
 def insert_status(status):
     dynamodb_client = boto3.client(
-        'dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+        'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
+    # NOTE(whw): Numbers are always sent to DynamoDB as strings
     item = {
         'deviceId': {'S': 'abcdef'},
         'timestamp': {'N': str(time.time())},
@@ -55,7 +58,7 @@ def insert_status(status):
 
 def number_of_items_in_table():
     dynamodb = boto3.resource(
-        'dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+        'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
     table = dynamodb.Table(table_name)
 
@@ -64,6 +67,6 @@ def number_of_items_in_table():
 
 def delete_table():
     dynamodb = boto3.client(
-        'dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
-
-    table = dynamodb.delete_table(TableName=table_name)
+        'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+    dynamodb.delete_table(TableName=table_name)
+    dynamodb.get_waiter('table_not_exists').wait(TableName=table_name)

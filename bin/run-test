@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-echo "Running unit tests..."
-python -m unittest discover -b
-
-echo ""
-echo ""
-
-./bin/clean

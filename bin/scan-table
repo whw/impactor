@@ -7,6 +7,3 @@ dynamodb_client = boto3.client(
 table_name = 'FleetStatus'
 
 print dynamodb_client.scan(TableName=table_name)
-
-# item = {'key': {'S': file_name}}
-# dynamodb_client.put_item(TableName=table_name, Item=item)

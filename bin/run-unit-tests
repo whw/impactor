@@ -1,3 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-python -m unittest discover
+echo "Running unit tests..."
+python -m unittest discover -b
+
+./bin/clean
