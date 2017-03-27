@@ -1,7 +1,9 @@
 ## Setup
-* Install [Gordon](https://gordon.readthedocs.io/en/latest/index.html])
-* Install [Docker](https://www.docker.com/community-edition)
+* Install [Gordon](https://gordon.readthedocs.io/en/latest/index.html). I chose Gordon because it seemed to be the simplest and sharpest tool for working with AWS Lambda, and so far I've been pretty impressed.
+* Install [Docker](https://www.docker.com/community-edition) (for running DynamoDB locally)
 * I think you need to make sure that you've got AWS credentials setup in `$HOME/.aws` (instructions [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files))
+
+There's a good chance I'm forgetting something here, so if you have any problems please don't hesitate to let me know.
 
 ## Run unit tests
 ### Start local DynamoDB instance
