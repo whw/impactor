@@ -10,14 +10,17 @@ import unittest
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from backend import dynamodb
 
-API_GATEWAY_URL = "https://rgx1pkb8se.execute-api.us-west-2.amazonaws.com/dev"
+# FIX(whw): Including the relative (to the runner of the script) path to
+# the file here is jank and brittle. This code is also duplicated :-(
+with open('api-gateway-url.txt', 'r') as f:
+    API_GATEWAY_URL = f.read().strip()
+f.closed
 
 
 def send_status(status):
-    url = "https://rgx1pkb8se.execute-api.us-west-2.amazonaws.com/dev"
     data = json.dumps({"status": status})
 
-    r = requests.post(url, data=data)
+    r = requests.post(API_GATEWAY_URL, data=data)
     raw_response = r.json()
     response = json.loads(raw_response)
 
