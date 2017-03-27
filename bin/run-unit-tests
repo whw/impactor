@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 echo "Running unit tests..."
-python -m unittest discover -b
+T_STAGE=test python -m unittest discover -b
 
 ./bin/clean

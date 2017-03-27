@@ -1,13 +1,36 @@
 import boto3
+import os
 import time
 
-table_name = 'FleetStatus'
-region = 'us-west-2'
-dynamodb_url = 'http://localhost:8000'
+# table_name = os.getenv('DYNAMO_TABLE_NAME', 'FleetStatus')
+# region = os.getenv('DYNAMO_REGION', 'us-west-2')
+# # 'http://localhost:8000'
+# dynamodb_url = os.getenv('DYNAMO_ENDPOINT_URL', None)
+
+
+def _get_config():
+    stage = os.getenv('T_STAGE', 'dev')
+    region = 'us-west-2'
+
+    if stage == 'dev':
+        table_name = 'dev_FleetStatus'
+        dynamodb_url = 'http://localhost:8000'
+    elif stage == 'test':
+        table_name = 'test_FleetStatus'
+        dynamodb_url = 'http://localhost:8000'
+    elif stage == 'prod':
+        table_name = 'FleetStatus'
+        dynamodb_url = None
+    else:
+        print('Invalid stage recieved: ' + stage)
+        raise
+
+    return (table_name, region, dynamodb_url)
 
 
 def create_table():
-    dynamodb = boto3.resource(
+    table_name, region, dynamodb_url = _get_config()
+    dynamodb = boto3.client(
         'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
     table = dynamodb.create_table(
@@ -39,10 +62,14 @@ def create_table():
         }
     )
 
-    table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+    dynamodb.get_waiter('table_exists').wait(TableName=table_name)
+
+    print("Created " + table_name + " in " +
+          region + " accessible at " + dynamodb_url)
 
 
 def insert_status(status):
+    table_name, region, dynamodb_url = _get_config()
     dynamodb_client = boto3.client(
         'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
@@ -57,6 +84,7 @@ def insert_status(status):
 
 
 def number_of_items_in_table():
+    table_name, region, dynamodb_url = _get_config()
     dynamodb = boto3.resource(
         'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
@@ -66,7 +94,11 @@ def number_of_items_in_table():
 
 
 def delete_table():
+    table_name, region, dynamodb_url = _get_config()
     dynamodb = boto3.client(
         'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+
     dynamodb.delete_table(TableName=table_name)
     dynamodb.get_waiter('table_not_exists').wait(TableName=table_name)
+    print("Deleted " + table_name + " in " +
+          region + " accessible at " + dynamodb_url)
