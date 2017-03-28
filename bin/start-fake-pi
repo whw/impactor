@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+
+import os
+import json
+import random
+import requests
+import sched
+import sys
+import time
+
+# So we can import from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from backend import dynamodb, oracle
+
+s = sched.scheduler(time.time, time.sleep)
+
+
+# FIX(whw): Including the relative (to the runner of the script) path to
+# the file here is jank and brittle. This code is also duplicated :-(
+with open('api-gateway-url.txt', 'r') as f:
+    API_GATEWAY_URL = f.read().strip()
+f.closed
+
+
+def send_status_prod(status):
+    data = json.dumps({"status": status})
+    requests.post(API_GATEWAY_URL, data=data)
+    print("Status sent prod: " + str(status))
+
+    schedule_next_run()
+
+
+def send_status_dev(status):
+    oracle.insert_status(status, table_name, region, dynamodb_url)
+    print("Status sent: " + str(status))
+
+    schedule_next_run()
+
+
+# Determine how we're gonna go about sending
+stage = os.getenv('T_STAGE', 'dev')
+if stage == 'dev':
+    send_status = send_status_dev
+elif stage == 'test':
+    send_status = send_status_dev
+elif stage == 'prod':
+    send_status = send_status_prod
+else:
+    print('Invalid stage recieved: ' + stage)
+    raise
+
+table_name, region, dynamodb_url = dynamodb._get_config()
+
+
+def schedule_next_run():
+    # secs, priority, func, args
+    s.enter(1, 1, send_status, [random.randint(-1, 1)])
+
+
+def run():
+    schedule_next_run()
+    s.run()
+
+print("ctrl-c to stop.\n")
+run()

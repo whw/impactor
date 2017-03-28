@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+
+import json
+import os
+import requests
+import sys
+import unittest
+
+# So we can import from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from backend import dynamodb
+
+# FIX(whw): Including the relative (to the runner of the script) path to
+# the file here is jank and brittle. This code is also duplicated :-(
+with open('api-gateway-url.txt', 'r') as f:
+    API_GATEWAY_URL = f.read().strip()
+f.closed
+
+
+def send_status(status):
+    data = json.dumps({"status": status})
+
+    r = requests.post(API_GATEWAY_URL, data=data)
+    raw_response = r.json()
+    response = json.loads(raw_response)
+
+    return response["orders"]
+
+
+class TestIntegrationOracle(unittest.TestCase):
+
+    def test_orders(self):
+        initial_count = dynamodb.number_of_items_in_table()
+        self.assertEqual(send_status(-1), 0)
+        self.assertEqual(
+            1, dynamodb.number_of_items_in_table() - initial_count)
+
+        self.assertEqual(send_status(0), 1)
+        self.assertEqual(
+            2, dynamodb.number_of_items_in_table() - initial_count)
+
+        self.assertEqual(send_status(1), -1)
+        self.assertEqual(
+            3, dynamodb.number_of_items_in_table() - initial_count)
+
+
+unittest.main()
+print("Integration Tests")

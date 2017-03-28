@@ -1,0 +1,4 @@
+#!/bin/sh
+
+(docker run -d --rm --name dynamodb-local -p 8000:8000 deangiberson/aws-dynamodb-local 2>&1 > /dev/null \
+  && echo "Local instance of DynamoDB started.") || echo "Error starting DynamoDB"

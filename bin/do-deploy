@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+gordon build && gordon apply

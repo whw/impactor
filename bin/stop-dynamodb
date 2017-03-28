@@ -1,0 +1,4 @@
+#!/bin/sh
+
+(docker stop dynamodb-local 2>&1 > /dev/null \
+  && echo "DynamoDB stopped.") || echo "Error stopping DynamoDB"
