@@ -5,17 +5,17 @@ class BaseDB():
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def get_config():
+    def get_config(self):
         raise "Not implemented"
 
     @abstractmethod
-    def create_table():
+    def create_table(self):
         raise "Not implemented"
 
     @abstractmethod
-    def number_of_items_in_table():
+    def number_of_items_in_table(self):
         raise "Not implemented"
 
     @abstractmethod
-    def delete_table():
+    def delete_table(self):
         raise "Not implemented"
