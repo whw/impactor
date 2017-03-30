@@ -33,7 +33,7 @@ def send_status_prod(status):
 
 
 def send_status_dev(status):
-    oracle.insert_status(status, table_name, region, dynamodb_url)
+    oracle._write(status, table_name, region, dynamodb_url)
     print("Status sent: " + str(status))
 
     schedule_next_run()
@@ -56,7 +56,7 @@ table_name, region, dynamodb_url = db.get_db().get_config()
 
 def schedule_next_run():
     # seconds to wait, priority, func, args (random status, either -1, 0, or 1)
-    s.enter(1, 1, send_status, [random.randint(-1, 1)])
+    s.enter(1, 1, send_status, [oracle._build_status(random.randint(-1, 1))])
 
 
 def run():

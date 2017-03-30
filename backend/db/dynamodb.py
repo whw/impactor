@@ -84,3 +84,10 @@ class DynamoDB(BaseDB):
 
         print("Deleted " + table_name + " in " + region + " accessible at")
         print(dynamodb_url)
+
+    def scan_table(self):
+        table_name, region, dynamodb_url = self.get_config()
+        dynamodb = boto3.client(
+            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+
+        return dynamodb.scan(TableName=table_name)
