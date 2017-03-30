@@ -2,7 +2,7 @@ import boto3
 import json
 import os
 import time
-import dynamodb
+from db import db
 
 status_to_orders = {
     -1: 0,
@@ -15,7 +15,7 @@ def handler(event, context):
     status = event['status']
 
     if os.getenv('T_STAGE') != None:
-        table_name, region, dynamodb_url = dynamodb._get_config()
+        table_name, region, dynamodb_url = db.get_db().get_config()
     else:
         table_name = 'FleetStatus'
         region = 'us-west-2'

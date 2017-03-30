@@ -10,7 +10,8 @@ import time
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import dynamodb, oracle
+from backend import oracle
+from backend.db import db
 
 s = sched.scheduler(time.time, time.sleep)
 
@@ -24,8 +25,9 @@ f.closed
 
 def send_status_prod(status):
     data = json.dumps({"status": status})
-    requests.post(API_GATEWAY_URL, data=data)
-    print("Status sent prod: " + str(status))
+    response = requests.post(API_GATEWAY_URL, data=data)
+    print("Status sent prod: " + str(status) +
+          ". Next action: " + str(response.text))
 
     schedule_next_run()
 
@@ -49,11 +51,11 @@ else:
     print('Invalid stage recieved: ' + stage)
     raise
 
-table_name, region, dynamodb_url = dynamodb._get_config()
+table_name, region, dynamodb_url = db.get_db().get_config()
 
 
 def schedule_next_run():
-    # secs, priority, func, args
+    # seconds to wait, priority, func, args (random status, either -1, 0, or 1)
     s.enter(1, 1, send_status, [random.randint(-1, 1)])
 
 

@@ -8,7 +8,9 @@ import unittest
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import dynamodb
+from backend.db import db
+
+dynamodb = db.get_db()
 
 # FIX(whw): Including the relative (to the runner of the script) path to
 # the file here is jank and brittle. This code is also duplicated :-(
