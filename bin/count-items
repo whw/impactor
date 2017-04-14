@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+
+import boto3
+import os
+import sys
+
+# So we can import from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from backend.db import db
+
+print "Count: " + str(db.get_db().scan_table()['Count'])
+print "ScannedCount: " + str(db.get_db().scan_table()['ScannedCount'])

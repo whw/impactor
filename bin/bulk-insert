@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+import boto3
+import json
+import os
+import pprint
+import random
+import sys
+
+# So we can import from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from backend import oracle, status
+from backend.db import db
+
+table_name, region, dynamodb_url = db.get_db().get_config()
+dynamodb_client = boto3.client(
+    'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+
+# pp = pprint.PrettyPrinter(indent=2)
+
+timestamp = 1492529657.51
+
+for x in xrange(10):
+    batch = []
+    for y in xrange(25):
+
+        for datapoint in status._build_status(0):
+            device_id = datapoint.keys()[0]
+            data = datapoint[device_id]
+            # oracle._write(device_id, data, table_name, region, dynamodb_url)
+
+            timestamp += 1
+
+            item = {
+                'deviceId': {'S': device_id},
+                'timestamp': {'N': str(timestamp)},
+                # 'timestamp': {'N': str(data['ts'])},
+                # 'data': {'S': json.dumps(data)},
+            }
+
+            batch.append({'PutRequest': {'Item': item}})
+            # dynamodb_client.put_item(TableName=table_name, Item=item)
+
+    batch_request = {table_name: batch}
+    # pp.pprint(batch_request)
+
+    # with open('dev_FleetStatus.json', 'w') as outfile:
+    #     json.dump(batch_request, outfile)
+    dynamodb_client.batch_write_item(RequestItems=batch_request)
+    # oracle.handler(status._build_status(random.randint(-1, 1)), None)
+    # if x % 100 == 0:
+    #     print str(x) + " items inserted."
+    print str((x + 1) * len(batch)) + " items inserted."
+
+print "Bulk insert complete."

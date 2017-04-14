@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+import boto3
+import json
+import os
+import pandas as pd
+import sys
+
+# So we can import from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from backend.db import db
+
+
+def parse_item(item):
+    parsed = json.loads(item['data']['S'])
+    parsed['device_id'] = item['deviceId']['S']
+
+    return parsed
+
+
+response = db.get_db().scan_table()
+
+items = response['Items']
+print items
+
+# [
+#     {'data':
+#         {'S': 'actual_data_json_string'}
+#     }
+# ]
+# We only care about the data in the 'data' key. The data key maps to a map of
+# the form {'S' -> 'actual_data'}, so extract actual_data and convert it into
+# a dict.
+# item_data = map(lambda item: json.loads(item['data'].values()[0]), items)
+item_data = map(parse_item, items)
+print item_data
+
+json_items = json.dumps(item_data, indent=2)
+print json_items
+
+# print json_items
+
+
+df = pd.read_json(json_items, orient='columns')
+# df = pd.DataFrame.from_records(map(json.loads, json_items))
+print df
