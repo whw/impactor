@@ -1,0 +1,4 @@
+#!/bin/sh
+
+(docker stop cassandra-local 2>&1 > /dev/null \
+  && echo "Cassandra stopped.") || echo "Error stopping Cassandra"
