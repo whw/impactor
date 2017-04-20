@@ -13,50 +13,40 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from backend import oracle, status
 from backend.db import db
 
-s = sched.scheduler(time.time, time.sleep)
+url = None
+
+# Determine how we're gonna go about sending
+stage = os.getenv('T_STAGE', 'dev')
+if stage == 'dev':
+    url = "http://localhost:8888"
+elif stage == 'test':
+    url = "http://localhost:8888"
+elif stage == 'prod':
+    # FIX(whw): Including the relative (to the runner of the script) path to
+    # the file here is jank and brittle. This code is also duplicated :-(
+    with open('api-gateway-url.txt', 'r') as f:
+        url = f.read().strip()
+    f.closed
+else:
+    print('Invalid stage recieved: ' + stage)
+    raise
 
 
-# FIX(whw): Including the relative (to the runner of the script) path to
-# the file here is jank and brittle. This code is also duplicated :-(
-with open('api-gateway-url.txt', 'r') as f:
-    API_GATEWAY_URL = f.read().strip()
-f.closed
-
-
-def send_status_prod(status):
+def send_status(url, status):
     data = json.dumps(status)
-    response = requests.post(API_GATEWAY_URL, data=data)
+    response = requests.post(url, data=data)
     print("Status sent prod: " + data +
           ". Next action: " + str(response.text))
 
     schedule_next_run()
 
-
-def send_status_dev(status):
-    oracle._write(status, table_name, region, dynamodb_url)
-    print("Status sent: " + str(status))
-
-    schedule_next_run()
-
-
-# Determine how we're gonna go about sending
-stage = os.getenv('T_STAGE', 'dev')
-if stage == 'dev':
-    send_status = send_status_dev
-elif stage == 'test':
-    send_status = send_status_dev
-elif stage == 'prod':
-    send_status = send_status_prod
-else:
-    print('Invalid stage recieved: ' + stage)
-    raise
-
-table_name, region, dynamodb_url = db.get_db().get_config()
+s = sched.scheduler(time.time, time.sleep)
 
 
 def schedule_next_run():
     # seconds to wait, priority, func, args (random status, either -1, 0, or 1)
-    s.enter(1, 1, send_status, [status._build_status(random.randint(-1, 1))])
+    s.enter(1, 1, send_status, [
+            url, status._build_status(random.randint(-1, 1))])
 
 
 def run():
