@@ -8,7 +8,10 @@ import unittest
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import dynamodb
+from backend import status
+from backend.db import db
+
+dynamodb = db.get_db()
 
 # FIX(whw): Including the relative (to the runner of the script) path to
 # the file here is jank and brittle. This code is also duplicated :-(
@@ -17,14 +20,14 @@ with open('api-gateway-url.txt', 'r') as f:
 f.closed
 
 
-def send_status(status):
-    data = json.dumps({"status": status})
+def send_status(output):
+    data = json.dumps(status._build_status(output))
 
     r = requests.post(API_GATEWAY_URL, data=data)
     raw_response = r.json()
     response = json.loads(raw_response)
 
-    return response["orders"]
+    return response["power"]
 
 
 class TestIntegrationOracle(unittest.TestCase):

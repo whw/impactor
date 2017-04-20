@@ -2,44 +2,45 @@ import boto3
 import json
 import os
 import time
-import dynamodb
 
-status_to_orders = {
-    -1: 0,
-    0: 1,
-    1: -1,
-}
+import status
+from db import db
+from predict import predict
 
 
-def handler(event, context):
-    status = event['status']
+def handler(datapoints, context):
+    # datapoints is a native python data structure, not the raw json string
+    # you expect. This conversion is handled by Lambda automatically.
 
     if os.getenv('T_STAGE') != None:
-        table_name, region, dynamodb_url = dynamodb._get_config()
+        table_name, region, dynamodb_url = db.get_db().get_config()
     else:
         table_name = 'FleetStatus'
         region = 'us-west-2'
         dynamodb_url = None
 
-    insert_status(status, table_name, region, dynamodb_url)
+    prediction_strategy = predict.get_strategy()
 
-    return get_orders(status)
+    orders = None
+
+    for datapoint in datapoints:
+        device_id = datapoint.keys()[0]
+        data = datapoint[device_id]
+        _write(device_id, data, table_name, region, dynamodb_url)
+        orders = prediction_strategy.predict(device_id, data)
+
+    return orders
 
 
-def insert_status(status, table_name, region, dynamodb_url):
-
+def _write(device_id, data, table_name, region, dynamodb_url):
     dynamodb_client = boto3.client(
         'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
     # NOTE(whw): Numbers are always sent to DynamoDB as strings
     item = {
-        'deviceId': {'S': 'abcdef'},
-        'timestamp': {'N': str(time.time())},
-        'status': {'N': str(status)},
+        'deviceId': {'S': device_id},
+        'timestamp': {'N': str(data['ts'])},
+        'data': {'S': json.dumps(data)},
     }
 
     dynamodb_client.put_item(TableName=table_name, Item=item)
-
-
-def get_orders(status):
-    return json.dumps({'orders': status_to_orders[status]})

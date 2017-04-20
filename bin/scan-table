@@ -6,9 +6,9 @@ import sys
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import dynamodb
+from backend.db import db
 
-table_name, region, dynamodb_url = dynamodb._get_config()
+table_name, region, dynamodb_url = db.get_db().get_config()
 dynamodb = boto3.client(
     'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 

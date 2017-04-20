@@ -6,6 +6,6 @@ import sys
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import dynamodb
+from backend.db import db
 
-dynamodb.create_table()
+db.get_db().create_table()
