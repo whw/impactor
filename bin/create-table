@@ -1,11 +1,28 @@
 #!/usr/bin/env python
-
-import boto3
 import os
 import sys
+from cassandra.cqlengine import connection
+from cassandra.cqlengine.management import create_keyspace_simple, sync_table
+from cassandra.cqlengine import columns
+from cassandra.cqlengine.models import Model
 
-# So we can import from parent directory
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend.db import db
 
-db.get_db().create_table()
+class UsageModel(Model):
+    # read_repair_chance = 0.05  # optional - defaults to 0.1
+    modified = columns.DateTime()
+    year = columns.Integer(primary_key=True)
+    ts = columns.DateTime(primary_key=True, clustering_order='DESC')
+    usage = columns.Float()
+    total_demand = columns.Float()
+    soc = columns.Float()
+    output = columns.Float()
+    regd_ts = columns.DateTime()
+
+    access_name = 'usage'
+
+connection.setup(['localhost'], "ops")
+create_keyspace_simple("ops", 1)
+
+sync_table(UsageModel)
+
+# db.get_db(name='cassandra').create_table()
