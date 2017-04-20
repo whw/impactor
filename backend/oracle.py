@@ -9,6 +9,9 @@ from predict import predict
 
 
 def handler(datapoints, context):
+    # datapoints is a native python data structure, not the raw json string
+    # you expect. This conversion is handled by Lambda automatically.
+
     if os.getenv('T_STAGE') != None:
         table_name, region, dynamodb_url = db.get_db().get_config()
     else:
