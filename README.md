@@ -32,10 +32,6 @@ Project Outputs:
     https://rgx1pkb8se.execute-api.us-west-2.amazonaws.com/dev
 ```
 
-Replace URL in `api-gateway-url.txt` with the value that Gordan returns (`https://rgx1pkb8se.execute-api.us-west-2.amazonaws.com/dev` in this case)
-
-NOTE: You should only have to do this the first time you deploy
-
 ### Run integration tests
 `T_STAGE=prod ./bin/run-integration-tests`
 

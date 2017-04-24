@@ -15,6 +15,9 @@ from backend.db import db
 
 DEV_PORT = '8888'
 
+# This needs to be changed each time the proxy server is restarted
+PROXY_IP = '54.149.95.167'
+
 url = None
 proxies = {}
 
@@ -25,13 +28,8 @@ if stage == 'dev':
 elif stage == 'test':
     url = "http://localhost:" + DEV_PORT
 elif stage == 'prod':
-    # FIX(whw): Including the relative (to the runner of the script) path to
-    # the file here is jank and brittle. This code is also duplicated :-(
-    with open('api-gateway-url.txt', 'r') as f:
-        url = f.read().strip()
-    f.closed
-
-    proxies = {'https': 'https://54.202.141.50:8888'}
+    url = "https://api.tumalow.com/status/dev"
+    proxies = {'https': 'https://' + PROXY_IP + ':8888'}
 else:
     print('Invalid stage recieved: ' + stage)
     raise
