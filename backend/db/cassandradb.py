@@ -1,10 +1,14 @@
+from datetime import datetime
 import json
 import os
 from cassandra.cqlengine import connection, columns
-from cassandra.cqlengine.management import create_keyspace_simple, sync_table
+from cassandra.cqlengine.management import create_keyspace_simple, drop_table, sync_table
 from cassandra.cqlengine.models import Model
 
 from basedb import BaseDB
+
+# NOTE(whw): This fixes a warning.
+os.environ["CQLENG_ALLOW_SCHEMA_MANAGEMENT"] = "true"
 
 
 class UsageModel(Model):
@@ -23,23 +27,42 @@ class UsageModel(Model):
 
 class CassandraDB(BaseDB):
 
+    def __init__(self):
+        self.session = connection.setup(['localhost'], "ops")
+
     def create_table(self):
-        connection.setup(['localhost'], "ops")
         create_keyspace_simple("ops", 1)
         sync_table(UsageModel)
 
     def delete_table(self):
-        False
+        drop_table(UsageModel)
 
     def number_of_items_in_table(self):
-        connection.setup(['localhost'], "ops")
-
         return UsageModel.objects.count()
 
     def get_config(self):
         return "Cassandra"
 
     def scan_table(self):
-        connection.setup(['localhost'], "ops")
+        items = []
+        for datapoint in UsageModel.objects().all():
+            items.append(datapoint.items())
 
-        return UsageModel.objects.count()
+        return items
+
+    def write_item(self, data):
+        device_id = data.keys()[0]
+        raw_data = data[device_id]
+
+        now = datetime.now()
+
+        UsageModel.create(
+            modified=now,
+            year=now.year,
+            ts=raw_data['ts'],
+            usage=raw_data['usage'],
+            total_demand=raw_data['billing_demand'],
+            soc=raw_data['soc'],
+            output=raw_data['output'],
+            regd_ts=raw_data['regd_ts'],
+        ).save()

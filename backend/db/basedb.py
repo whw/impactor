@@ -23,3 +23,7 @@ class BaseDB():
     @abstractmethod
     def scan_table(self):
         raise "Not implemented"
+
+    @abstractmethod
+    def write_item(self, data):
+        raise "Not implemented"

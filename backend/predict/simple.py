@@ -12,7 +12,10 @@ status_to_orders = {
 
 class SimpleStrategy(BaseStrategy):
 
-    def predict(self, device_id, data):
+    def predict(self, latest_datapoint):
+        device_id = latest_datapoint.keys()[0]
+        data = latest_datapoint[device_id]
+
         return json.dumps({
             "ts": data['ts'],
             "cmd": "output",

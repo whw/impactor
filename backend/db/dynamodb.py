@@ -88,3 +88,20 @@ class DynamoDB(BaseDB):
             'dynamodb', region_name=region, endpoint_url=dynamodb_url)
 
         return dynamodb.scan(TableName=table_name)
+
+    def write_item(self, data):
+        table_name, region, dynamodb_url = self.get_config()
+        dynamodb_client = boto3.client(
+            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+
+        device_id = data.keys()[0]
+        raw_data = data[device_id]
+
+        # NOTE(whw): Numbers are always sent to DynamoDB as strings
+        item = {
+            'deviceId': {'S': device_id},
+            'timestamp': {'N': str(raw_data['ts'])},
+            'data': {'S': json.dumps(raw_data)},
+        }
+
+        dynamodb_client.put_item(TableName=table_name, Item=item)
