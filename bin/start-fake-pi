@@ -16,6 +16,7 @@ from backend.db import db
 DEV_PORT = '8888'
 
 url = None
+proxies = {}
 
 # Determine how we're gonna go about sending
 stage = os.getenv('T_STAGE', 'dev')
@@ -29,6 +30,8 @@ elif stage == 'prod':
     with open('api-gateway-url.txt', 'r') as f:
         url = f.read().strip()
     f.closed
+
+    proxies = {'https': 'https://54.202.141.50:8888'}
 else:
     print('Invalid stage recieved: ' + stage)
     raise
@@ -36,7 +39,7 @@ else:
 
 def send_status(url, status):
     data = json.dumps(status)
-    response = requests.post(url, data=data)
+    response = requests.post(url, data=data, proxies=proxies)
     print("Status sent prod: " + data +
           ". Next action: " + str(response.text))
 
