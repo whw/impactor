@@ -6,28 +6,6 @@ from basedb import BaseDB
 
 class DynamoDB(BaseDB):
 
-    def get_config(self):
-        stage = os.getenv('T_STAGE', 'dev')
-        region = 'us-west-2'
-
-        if stage == 'dev':
-            table_name = 'dev_FleetStatus'
-            dynamodb_url = 'http://localhost:8000'
-        elif stage == 'test':
-            table_name = 'test_FleetStatus'
-            dynamodb_url = 'http://localhost:8000'
-        elif stage == 'prod':
-            table_name = 'FleetStatus'
-            dynamodb_url = None
-        else:
-            print('Invalid stage recieved: ' + stage)
-            raise
-
-        # print(table_name + " " + region)
-        # print(dynamodb_url)
-
-        return (table_name, region, dynamodb_url)
-
     def create_table(self):
         table_name, region, dynamodb_url = self.get_config()
         dynamodb = boto3.client(
@@ -67,13 +45,6 @@ class DynamoDB(BaseDB):
         print("Created " + table_name + " in " + region + " accessible at")
         print(dynamodb_url)
 
-    def number_of_items_in_table(self):
-        table_name, region, dynamodb_url = self.get_config()
-        dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
-
-        return dynamodb.scan(TableName=table_name)['Count']
-
     def delete_table(self):
         table_name, region, dynamodb_url = self.get_config()
         dynamodb = boto3.client(
@@ -84,6 +55,32 @@ class DynamoDB(BaseDB):
 
         print("Deleted " + table_name + " in " + region + " accessible at")
         print(dynamodb_url)
+
+    def get_config(self):
+        stage = os.getenv('T_STAGE', 'dev')
+        region = 'us-west-2'
+
+        if stage == 'dev':
+            table_name = 'dev_FleetStatus'
+            dynamodb_url = 'http://localhost:8000'
+        elif stage == 'test':
+            table_name = 'test_FleetStatus'
+            dynamodb_url = 'http://localhost:8000'
+        elif stage == 'prod':
+            table_name = 'FleetStatus'
+            dynamodb_url = None
+        else:
+            print('Invalid stage recieved: ' + stage)
+            raise
+
+        return (table_name, region, dynamodb_url)
+
+    def number_of_items_in_table(self):
+        table_name, region, dynamodb_url = self.get_config()
+        dynamodb = boto3.client(
+            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+
+        return dynamodb.scan(TableName=table_name)['Count']
 
     def scan_table(self):
         table_name, region, dynamodb_url = self.get_config()

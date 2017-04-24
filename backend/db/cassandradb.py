@@ -23,21 +23,21 @@ class UsageModel(Model):
 
 class CassandraDB(BaseDB):
 
-    def get_config(self):
-        return "Cassandra"
-
     def create_table(self):
         connection.setup(['localhost'], "ops")
         create_keyspace_simple("ops", 1)
         sync_table(UsageModel)
+
+    def delete_table(self):
+        False
 
     def number_of_items_in_table(self):
         connection.setup(['localhost'], "ops")
 
         return UsageModel.objects.count()
 
-    def delete_table(self):
-        False
+    def get_config(self):
+        return "Cassandra"
 
     def scan_table(self):
         connection.setup(['localhost'], "ops")
