@@ -16,10 +16,8 @@ from backend import oracle
 # Set T_STAGE to dev so that we don't use prod version of the infrastructure
 os.environ["T_STAGE"] = "dev"
 
-print "Database used: " + os.getenv("T_DATABASE")
 
-
-class S(BaseHTTPRequestHandler):
+class LocalApiGatewayHandler(BaseHTTPRequestHandler):
 
     def _set_headers(self):
         self.send_response(200)
@@ -36,9 +34,10 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(result))
 
 
-def run(server_class=HTTPServer, handler_class=S, port=8888):
+def run(server_class=HTTPServer, handler_class=LocalApiGatewayHandler, port=8888):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
+    print "Database used: " + os.getenv("T_DATABASE")
     print 'Starting httpd...'
     httpd.serve_forever()
 
