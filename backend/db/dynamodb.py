@@ -63,9 +63,6 @@ class DynamoDB(BaseDB):
         if stage == 'dev':
             table_name = 'dev_FleetStatus'
             dynamodb_url = 'http://localhost:8000'
-        elif stage == 'test':
-            table_name = 'test_FleetStatus'
-            dynamodb_url = 'http://localhost:8000'
         elif stage == 'prod':
             table_name = 'FleetStatus'
             dynamodb_url = None

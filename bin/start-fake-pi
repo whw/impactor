@@ -24,8 +24,6 @@ proxies = {}
 stage = os.getenv('T_STAGE', 'dev')
 if stage == 'dev':
     api_gateway_url = "http://localhost:" + DEV_PORT
-elif stage == 'test':
-    api_gateway_url = "http://localhost:" + DEV_PORT
 elif stage == 'prod':
     api_gateway_url = "https://api.tumalow.com/status/dev"
     proxies = {'https': 'https://' + PROXY_IP + ':8888'}
