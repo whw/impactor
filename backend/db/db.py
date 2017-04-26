@@ -1,5 +1,5 @@
 import os
-from cassandradb import CassandraDB
+
 from dynamodb import DynamoDB
 
 
@@ -9,6 +9,7 @@ def get_db(name='dynamodb'):
     if name == 'dynamodb':
         return DynamoDB()
     elif name == 'cassandra':
+        from cassandradb import CassandraDB
         return CassandraDB()
     else:
         raise 'Invalid database: ' + name

@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
+# gordon apply --stage=test1
+
 gordon build && gordon apply
