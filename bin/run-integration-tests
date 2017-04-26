@@ -4,6 +4,7 @@ import json
 import os
 import requests
 import sys
+import time
 import unittest
 
 # So we can import from parent directory
@@ -17,7 +18,7 @@ API_GATEWAY_URL = "https://api.tumalow.com/status/dev"
 
 
 def send_status(output):
-    data = json.dumps(status._build_status(output))
+    data = json.dumps(status._build_tumalow_packet(output, 10.0, time.time()))
 
     r = requests.post(API_GATEWAY_URL, data=data)
     raw_response = r.json()

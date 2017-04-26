@@ -12,7 +12,6 @@ os.environ["CQLENG_ALLOW_SCHEMA_MANAGEMENT"] = "true"
 
 
 class UsageModel(Model):
-    # read_repair_chance = 0.05  # optional - defaults to 0.1
     modified = columns.DateTime()
     year = columns.Integer(primary_key=True)
     ts = columns.DateTime(primary_key=True, clustering_order='DESC')

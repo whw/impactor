@@ -37,7 +37,7 @@ class LocalApiGatewayHandler(BaseHTTPRequestHandler):
 def run(server_class=HTTPServer, handler_class=LocalApiGatewayHandler, port=8888):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
-    print "Database used: " + os.getenv("T_DATABASE")
+    print "Database used: " + os.getenv("T_DATABASE", "dynamodb")
     print 'Starting httpd...'
     httpd.serve_forever()
 

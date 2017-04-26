@@ -10,51 +10,56 @@ import time
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import oracle, status
-from backend.db import db
+from backend import status
 
+# PROXY_IP needs to be changed each time the proxy server is restarted
+PROXY_IP = '54.149.95.167'
 DEV_PORT = '8888'
 
-# This needs to be changed each time the proxy server is restarted
-PROXY_IP = '54.149.95.167'
-
-url = None
+battery_status_url = 'http://localhost:39999/current/status/VaTech/1021Prince/d687f78d-8327-44aa-ae28-1e00bbbbc174'
+api_gateway_url = None
 proxies = {}
 
-# Determine how we're gonna go about sending
+# Determine which API Gateway to talk upload data to
 stage = os.getenv('T_STAGE', 'dev')
 if stage == 'dev':
-    url = "http://localhost:" + DEV_PORT
+    api_gateway_url = "http://localhost:" + DEV_PORT
 elif stage == 'test':
-    url = "http://localhost:" + DEV_PORT
+    api_gateway_url = "http://localhost:" + DEV_PORT
 elif stage == 'prod':
-    url = "https://api.tumalow.com/status/dev"
+    api_gateway_url = "https://api.tumalow.com/status/dev"
     proxies = {'https': 'https://' + PROXY_IP + ':8888'}
 else:
     print('Invalid stage recieved: ' + stage)
     raise
 
+scheduler = sched.scheduler(time.time, time.sleep)
 
-def send_status(url, status):
-    data = json.dumps(status)
-    response = requests.post(url, data=data, proxies=proxies)
-    print("Status sent prod: " + data +
-          ". Next action: " + str(response.text))
+
+def send_status():
+    battery_status_response = requests.get(battery_status_url)
+
+    battery_status = json.loads(battery_status_response.text)
+    tumalow_packet = status._build_tumalow_packet(
+        battery_status['output'], battery_status['soc'], battery_status['ts'])
+
+    command_response = requests.post(
+        api_gateway_url, data=json.dumps(tumalow_packet), proxies=proxies)
+
+    print "Status sent: " + json.dumps(tumalow_packet)
+    print "Command received: " + str(json.loads(command_response.text)) + "\n"
 
     schedule_next_run()
-
-s = sched.scheduler(time.time, time.sleep)
 
 
 def schedule_next_run():
     # seconds to wait, priority, func, args (random status, either -1, 0, or 1)
-    s.enter(1, 1, send_status, [
-            url, status._build_status(random.randint(-1, 1))])
+    scheduler.enter(1, 1, send_status, [])
 
 
 def run():
     schedule_next_run()
-    s.run()
+    scheduler.run()
 
 print("ctrl-c to stop.\n")
 run()

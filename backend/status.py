@@ -1,16 +1,16 @@
 import time
 
 
-def _build_status(output):
+def _build_tumalow_packet(output, soc, ts):
     return [
         {
             "VaTech": {
-                "soc": 10.0,
+                "soc": soc,
                 "billing_demand": -1.0,
                 "regd_ts": 1430496000.0,
                 "battery": 0.0,
                 "emergency_time": 1.333333,
-                "ts": time.time(),
+                "ts": ts,
                 "other": {
                     "plug1": {
                         "Power Sum": None
