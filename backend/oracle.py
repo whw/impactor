@@ -10,7 +10,7 @@ def handler(datapoints, context):
     orders = None
 
     for datapoint in datapoints:
-        db.get_db().write_item(datapoint)
+        db.get_db().write_item(datapoint, 'usage')
         orders = prediction_strategy.predict(datapoint)
 
     return orders

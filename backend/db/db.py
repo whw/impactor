@@ -3,7 +3,7 @@ import os
 from dynamodb import DynamoDB
 
 
-def get_db(name='dynamodb'):
+def get_db(name='cassandra'):
     name = os.getenv('T_DATABASE', name)
 
     if name == 'dynamodb':

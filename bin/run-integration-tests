@@ -27,7 +27,7 @@ else:
     raise
 
 
-def send_status(output):
+def send_usage(output):
     usage_data = json.dumps(
         data._build_tumalow_packet(output, 10.0, time.time()))
 
@@ -41,18 +41,15 @@ def send_status(output):
 class TestIntegrationOracle(unittest.TestCase):
 
     def test_orders(self):
-        initial_count = database.count_items()
-        self.assertEqual(send_status(-1), -1)
-        self.assertEqual(
-            1, database.count_items() - initial_count)
+        initial_count = database.count_items('usage')
+        self.assertEqual(send_usage(-1), -1)
+        self.assertEqual(1, database.count_items('usage') - initial_count)
 
-        self.assertEqual(send_status(0), 0)
-        self.assertEqual(
-            2, database.count_items() - initial_count)
+        self.assertEqual(send_usage(0), 0)
+        self.assertEqual(2, database.count_items('usage') - initial_count)
 
-        self.assertEqual(send_status(1), 1)
-        self.assertEqual(
-            3, database.count_items() - initial_count)
+        self.assertEqual(send_usage(1), 1)
+        self.assertEqual(3, database.count_items('usage') - initial_count)
 
 
 unittest.main()

@@ -8,4 +8,4 @@ import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from backend.db import db
 
-db.get_db().delete_table()
+db.get_db().delete_table('usage')

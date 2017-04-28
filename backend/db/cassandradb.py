@@ -24,34 +24,48 @@ class UsageModel(Model):
     access_name = 'usage'
 
 
+def get_model(table_name):
+    if table_name == 'usage':
+        return UsageModel
+    else:
+        print('Invalid table: ' + table_name)
+        raise
+
+
 class CassandraDB(BaseDB):
 
     def __init__(self):
-        self.session = connection.setup(['localhost'], "ops")
+        cassandra_ip = os.getenv('T_CASSANDRA_IP', 'localhost')
+        self.session = connection.setup([cassandra_ip], "ops")
         create_keyspace_simple("ops", 1)
 
-    def create_table(self):
-        sync_table(UsageModel)
+    def create_table(self, table_name):
+        model = get_model(table_name)
+        sync_table(model)
 
-    def delete_table(self):
-        drop_table(UsageModel)
+    def delete_table(self, table_name):
+        model = get_model(table_name)
+        drop_table(model)
 
-    def count_items(self):
-        return UsageModel.objects.count()
+    def count_items(self, table_name):
+        model = get_model(table_name)
+        return model.objects.count()
 
-    def scan_table(self):
+    def scan_table(self, table_name):
+        model = get_model(table_name)
         items = []
-        for datapoint in UsageModel.objects().all():
+        for datapoint in model.objects().all():
             items.append(datapoint.items())
 
         return items
 
-    def write_item(self, data):
+    def write_item(self, data, table_name):
+        model = get_model(table_name)
         device_id = data.pop('device_id')
 
         now = datetime.now()
 
-        UsageModel.create(
+        model.create(
             modified=now,
             year=now.year,
             ts=data['ts'],

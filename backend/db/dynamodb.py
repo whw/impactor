@@ -20,7 +20,7 @@ class DynamoDB(BaseDB):
             print('Invalid stage: ' + stage)
             raise
 
-    def create_table(self):
+    def create_table(self, table_name):
         dynamodb = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
@@ -59,7 +59,7 @@ class DynamoDB(BaseDB):
               " in " + self.region + " accessible at")
         print(self.dynamodb_url)
 
-    def delete_table(self):
+    def delete_table(self, table_name):
         dynamodb = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
@@ -70,19 +70,19 @@ class DynamoDB(BaseDB):
               " in " + self.region + " accessible at")
         print(self.dynamodb_url)
 
-    def count_items(self):
+    def count_items(self, table_name):
         dynamodb = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
         return dynamodb.scan(TableName=self.table_name)['Count']
 
-    def scan_table(self):
+    def scan_table(self, table_name):
         dynamodb = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
         return dynamodb.scan(TableName=self.table_name)
 
-    def write_item(self, data):
+    def write_item(self, data, table_name):
         dynamodb_client = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
