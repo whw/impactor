@@ -13,10 +13,6 @@ class BaseDB():
         raise "Not implemented"
 
     @abstractmethod
-    def get_config(self):
-        raise "Not implemented"
-
-    @abstractmethod
     def number_of_items_in_table(self):
         raise "Not implemented"
 

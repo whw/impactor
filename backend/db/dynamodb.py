@@ -6,13 +6,26 @@ from basedb import BaseDB
 
 class DynamoDB(BaseDB):
 
+    def __init__(self):
+        stage = os.getenv('T_STAGE', 'dev')
+        self.region = 'us-west-2'
+
+        if stage == 'dev':
+            self.table_name = 'dev_FleetStatus'
+            self.dynamodb_url = 'http://localhost:8000'
+        elif stage == 'prod':
+            self.table_name = 'FleetStatus'
+            self.dynamodb_url = None
+        else:
+            print('Invalid stage: ' + stage)
+            raise
+
     def create_table(self):
-        table_name, region, dynamodb_url = self.get_config()
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
         table = dynamodb.create_table(
-            TableName=table_name,
+            TableName=self.table_name,
             KeySchema=[
                 {
                     'AttributeName': 'deviceId',
@@ -40,56 +53,38 @@ class DynamoDB(BaseDB):
             }
         )
 
-        dynamodb.get_waiter('table_exists').wait(TableName=table_name)
+        dynamodb.get_waiter('table_exists').wait(TableName=self.table_name)
 
-        print("Created " + table_name + " in " + region + " accessible at")
-        print(dynamodb_url)
+        print("Created " + self.table_name +
+              " in " + self.region + " accessible at")
+        print(self.dynamodb_url)
 
     def delete_table(self):
-        table_name, region, dynamodb_url = self.get_config()
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        dynamodb.delete_table(TableName=table_name)
-        dynamodb.get_waiter('table_not_exists').wait(TableName=table_name)
+        dynamodb.delete_table(TableName=self.table_name)
+        dynamodb.get_waiter('table_not_exists').wait(TableName=self.table_name)
 
-        print("Deleted " + table_name + " in " + region + " accessible at")
-        print(dynamodb_url)
-
-    def get_config(self):
-        stage = os.getenv('T_STAGE', 'dev')
-        region = 'us-west-2'
-
-        if stage == 'dev':
-            table_name = 'dev_FleetStatus'
-            dynamodb_url = 'http://localhost:8000'
-        elif stage == 'prod':
-            table_name = 'FleetStatus'
-            dynamodb_url = None
-        else:
-            print('Invalid stage recieved: ' + stage)
-            raise
-
-        return (table_name, region, dynamodb_url)
+        print("Deleted " + self.table_name +
+              " in " + self.region + " accessible at")
+        print(self.dynamodb_url)
 
     def number_of_items_in_table(self):
-        table_name, region, dynamodb_url = self.get_config()
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        return dynamodb.scan(TableName=table_name)['Count']
+        return dynamodb.scan(TableName=self.table_name)['Count']
 
     def scan_table(self):
-        table_name, region, dynamodb_url = self.get_config()
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        return dynamodb.scan(TableName=table_name)
+        return dynamodb.scan(TableName=self.table_name)
 
     def write_item(self, data):
-        table_name, region, dynamodb_url = self.get_config()
         dynamodb_client = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
         device_id = data.keys()[0]
         raw_data = data[device_id]
@@ -101,4 +96,4 @@ class DynamoDB(BaseDB):
             'data': {'S': json.dumps(raw_data)},
         }
 
-        dynamodb_client.put_item(TableName=table_name, Item=item)
+        dynamodb_client.put_item(TableName=self.table_name, Item=item)

@@ -12,7 +12,6 @@ class TestOracle(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print(db.get_config())
         db.create_table()
 
     def test_orders(self):
@@ -22,12 +21,12 @@ class TestOracle(unittest.TestCase):
         self.assertEqual(1, db.number_of_items_in_table())
 
         orders2 = oracle.handler(
-            status._build_tumalow_packet(0), 10.0, time.time(), None)
+            status._build_tumalow_packet(0, 10.0, time.time()), None)
         self.assertEqual(1, json.loads(orders2)['power'])
         self.assertEqual(2, db.number_of_items_in_table())
 
         orders3 = oracle.handler(
-            status._build_tumalow_packet(1), 10.0, time.time(), None)
+            status._build_tumalow_packet(1, 10.0, time.time()), None)
         self.assertEqual(-1, json.loads(orders3)['power'])
         self.assertEqual(3, db.number_of_items_in_table())
 

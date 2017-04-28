@@ -39,9 +39,6 @@ class CassandraDB(BaseDB):
     def number_of_items_in_table(self):
         return UsageModel.objects.count()
 
-    def get_config(self):
-        return "Cassandra"
-
     def scan_table(self):
         items = []
         for datapoint in UsageModel.objects().all():
