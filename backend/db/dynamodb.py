@@ -86,14 +86,13 @@ class DynamoDB(BaseDB):
         dynamodb_client = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        device_id = data.keys()[0]
-        raw_data = data[device_id]
+        device_id = data.pop('device_id')
 
         # NOTE(whw): Numbers are always sent to DynamoDB as strings
         item = {
             'deviceId': {'S': device_id},
-            'timestamp': {'N': str(raw_data['ts'])},
-            'data': {'S': json.dumps(raw_data)},
+            'timestamp': {'N': str(data['ts'])},
+            'data': {'S': json.dumps(data)},
         }
 
         dynamodb_client.put_item(TableName=self.table_name, Item=item)

@@ -6,11 +6,8 @@ from base_strategy import BaseStrategy
 class SimpleStrategy(BaseStrategy):
 
     def predict(self, latest_datapoint):
-        device_id = latest_datapoint.keys()[0]
-        data = latest_datapoint[device_id]
-
         return json.dumps({
-            "ts": data['ts'],
+            "ts": latest_datapoint['ts'],
             "cmd": "output",
-            "power": data['output']
+            "power": latest_datapoint['output']
         })

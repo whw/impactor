@@ -28,9 +28,9 @@ class CassandraDB(BaseDB):
 
     def __init__(self):
         self.session = connection.setup(['localhost'], "ops")
+        create_keyspace_simple("ops", 1)
 
     def create_table(self):
-        create_keyspace_simple("ops", 1)
         sync_table(UsageModel)
 
     def delete_table(self):
@@ -47,18 +47,17 @@ class CassandraDB(BaseDB):
         return items
 
     def write_item(self, data):
-        device_id = data.keys()[0]
-        raw_data = data[device_id]
+        device_id = data.pop('device_id')
 
         now = datetime.now()
 
         UsageModel.create(
             modified=now,
             year=now.year,
-            ts=raw_data['ts'],
-            usage=raw_data['usage'],
-            total_demand=raw_data['billing_demand'],
-            soc=raw_data['soc'],
-            output=raw_data['output'],
-            regd_ts=raw_data['regd_ts'],
+            ts=data['ts'],
+            usage=data['usage'],
+            total_demand=data['billing_demand'],
+            soc=data['soc'],
+            output=data['output'],
+            regd_ts=data['regd_ts'],
         ).save()
