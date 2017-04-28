@@ -14,13 +14,23 @@ from backend.db import db
 
 dynamodb = db.get_db()
 
-API_GATEWAY_URL = "https://api.tumalow.com/status/dev"
+DEV_PORT = '8888'
+
+# API_GATEWAY_URL = "https://api.tumalow.com/status/dev"
+stage = os.getenv('T_STAGE', 'dev')
+if stage == 'dev':
+    api_gateway_url = "http://localhost:" + DEV_PORT
+elif stage == 'prod':
+    api_gateway_url = "https://api.tumalow.com/status/dev"
+else:
+    print('Invalid stage: ' + stage)
+    raise
 
 
 def send_status(output):
     data = json.dumps(status._build_tumalow_packet(output, 10.0, time.time()))
 
-    r = requests.post(API_GATEWAY_URL, data=data)
+    r = requests.post(api_gateway_url, data=data)
     raw_response = r.json()
     response = json.loads(raw_response)
 
@@ -31,15 +41,15 @@ class TestIntegrationOracle(unittest.TestCase):
 
     def test_orders(self):
         initial_count = dynamodb.number_of_items_in_table()
-        self.assertEqual(send_status(-1), 0)
+        self.assertEqual(send_status(-1), -1)
         self.assertEqual(
             1, dynamodb.number_of_items_in_table() - initial_count)
 
-        self.assertEqual(send_status(0), 1)
+        self.assertEqual(send_status(0), 0)
         self.assertEqual(
             2, dynamodb.number_of_items_in_table() - initial_count)
 
-        self.assertEqual(send_status(1), -1)
+        self.assertEqual(send_status(1), 1)
         self.assertEqual(
             3, dynamodb.number_of_items_in_table() - initial_count)
 
