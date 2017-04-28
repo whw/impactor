@@ -1,9 +1,3 @@
-import boto3
-import json
-import os
-import time
-
-import status
 from db import db
 from predict import predict
 

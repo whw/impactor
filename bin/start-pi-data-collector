@@ -10,7 +10,7 @@ import time
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import status
+from backend import data
 
 # PROXY_IP needs to be changed each time the proxy server is restarted
 PROXY_IP = '54.149.95.167'
@@ -38,7 +38,7 @@ def send_status():
     battery_status_response = requests.get(battery_status_url)
 
     battery_status = json.loads(battery_status_response.text)
-    tumalow_packet = status._build_tumalow_packet(
+    tumalow_packet = data._build_tumalow_packet(
         battery_status['output'], battery_status['soc'], battery_status['ts'])
 
     command_response = requests.post(
