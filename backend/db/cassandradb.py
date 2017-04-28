@@ -36,7 +36,7 @@ class CassandraDB(BaseDB):
     def delete_table(self):
         drop_table(UsageModel)
 
-    def number_of_items_in_table(self):
+    def count_items(self):
         return UsageModel.objects.count()
 
     def scan_table(self):

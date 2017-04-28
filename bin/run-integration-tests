@@ -12,7 +12,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from backend import data
 from backend.db import db
 
-dynamodb = db.get_db()
+database = db.get_db()
 
 DEV_PORT = '8888'
 
@@ -41,18 +41,18 @@ def send_status(output):
 class TestIntegrationOracle(unittest.TestCase):
 
     def test_orders(self):
-        initial_count = dynamodb.number_of_items_in_table()
+        initial_count = database.count_items()
         self.assertEqual(send_status(-1), -1)
         self.assertEqual(
-            1, dynamodb.number_of_items_in_table() - initial_count)
+            1, database.count_items() - initial_count)
 
         self.assertEqual(send_status(0), 0)
         self.assertEqual(
-            2, dynamodb.number_of_items_in_table() - initial_count)
+            2, database.count_items() - initial_count)
 
         self.assertEqual(send_status(1), 1)
         self.assertEqual(
-            3, dynamodb.number_of_items_in_table() - initial_count)
+            3, database.count_items() - initial_count)
 
 
 unittest.main()

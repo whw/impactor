@@ -13,7 +13,7 @@ class BaseDB():
         raise "Not implemented"
 
     @abstractmethod
-    def number_of_items_in_table(self):
+    def count_items(self):
         raise "Not implemented"
 
     @abstractmethod

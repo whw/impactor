@@ -70,7 +70,7 @@ class DynamoDB(BaseDB):
               " in " + self.region + " accessible at")
         print(self.dynamodb_url)
 
-    def number_of_items_in_table(self):
+    def count_items(self):
         dynamodb = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
