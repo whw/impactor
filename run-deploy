@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# gordon apply --stage=test1
+gordon apply

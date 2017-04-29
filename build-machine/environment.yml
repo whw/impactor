@@ -1,4 +1,4 @@
-name: skunk
+name: build
 channels:
 - !!python/unicode
   'defaults'
@@ -32,14 +32,20 @@ dependencies:
 - !!python/unicode
   'zlib=1.2.8=3'
 - pip:
+  - args==0.1.0
   - boto3==1.4.4
   - botocore==1.5.39
   - cassandra-driver==3.9.0
+  - clint==0.5.1
   - docutils==0.13.1
   - futures==3.1.1
+  - gordon==0.5.0
+  - jinja2==2.9.6
   - jmespath==0.9.2
-  - pandas==0.19.2
+  - markupsafe==1.0
+  - pyyaml==3.12
   - requests==2.13.0
   - s3transfer==0.1.10
-prefix: !!python/unicode '/Users/whw/miniconda2/envs/skunk'
+  - troposphere==1.9.3
+prefix: !!python/unicode '/Users/whw/miniconda2/envs/build'
 
