@@ -14,6 +14,7 @@ from backend import data
 
 # PROXY_IP needs to be changed each time the proxy server is restarted
 PROXY_IP = '54.149.95.167'
+PROXY_PORT = '8888'
 DEV_PORT = '8888'
 
 battery_status_url = 'http://localhost:39999/current/status/VaTech/1021Prince/d687f78d-8327-44aa-ae28-1e00bbbbc174'
@@ -26,9 +27,9 @@ if stage == 'dev':
     api_gateway_url = "http://localhost:" + DEV_PORT
 elif stage == 'prod':
     api_gateway_url = "https://api.tumalow.com/status/dev"
-    proxies = {'https': 'https://' + PROXY_IP + ':8888'}
+    proxies = {'https': 'https://' + PROXY_IP + ':' + PROXY_PORT}
 else:
-    print('Invalid stage recieved: ' + stage)
+    print('Invalid stage: ' + stage)
     raise
 
 scheduler = sched.scheduler(time.time, time.sleep)
@@ -42,7 +43,7 @@ def send_status():
         battery_status['output'], battery_status['soc'], battery_status['ts'])
 
     command_response = requests.post(
-        api_gateway_url, data=json.dumps(tumalow_packet), proxies=proxies)
+        api_gateway_url, data=json.dumps(tumalow_packet))
 
     print "Status sent: " + json.dumps(tumalow_packet)
     print "Command received: " + str(json.loads(command_response.text)) + "\n"
