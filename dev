@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Perform program exit housekeeping
+function clean_up {
+    echo
+    echo "Stopping dummy battery server..."
+    KILL $BATTERY_SERVER_PID
+
+    echo "Stopping mock thingsboard..."
+    KILL $THINGSBOARD_PID
+
+    echo "Stopping local API gateway..."
+    KILL $API_GATEWAY_PID
+
+    echo "Stopping database..."
+    bin/stop-cassandra
+
+    echo "Dev setup shutdown successfully."
+    exit
+}
+
+trap clean_up SIGINT SIGTERM
+
+echo "Starting database..."
+bin/start-cassandra
+
+bin/start-local-api-gateway &
+API_GATEWAY_PID=$!
+
+bin/start-local-mock-thingsboard &
+THINGSBOARD_PID=$!
+
+bin/start-dummy-battery-server &
+BATTERY_SERVER_PID=$!
+
+sleep 5
+
+echo "Dev setup started successfully."
+echo
+echo "No table was created."
+echo "(In another terminal) please create your table on the DB using this command:"
+echo
+echo "  ./bin/create-table"
+echo
+
+wait $BATTERY_SERVER_PID
+wait $THINGSBOARD_PID
+wait $API_GATEWAY_PID

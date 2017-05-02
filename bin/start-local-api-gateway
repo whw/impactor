@@ -37,8 +37,7 @@ class LocalApiGatewayHandler(BaseHTTPRequestHandler):
 def run(server_class=HTTPServer, handler_class=LocalApiGatewayHandler, port=8888):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
-    print "Database used: " + os.getenv("T_DATABASE", "dynamodb")
-    print 'Starting httpd...'
+    print "Starting local API gateway using (" + os.getenv("T_DATABASE", "cassandra") + ")..."
     httpd.serve_forever()
 
 if __name__ == "__main__":
