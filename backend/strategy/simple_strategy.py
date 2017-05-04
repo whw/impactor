@@ -5,9 +5,9 @@ from base_strategy import BaseStrategy
 
 class SimpleStrategy(BaseStrategy):
 
-    def predict(self, latest_datapoint):
+    def generate_command(self, resource_packet):
         return json.dumps({
-            "ts": latest_datapoint['ts'],
+            "ts": resource_packet['ts'],
             "cmd": "output",
-            "power": latest_datapoint['output']
+            "power": 0
         })

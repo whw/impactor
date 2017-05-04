@@ -1,16 +1,16 @@
 from db import db
-from predict import predict
+from strategy import strategies
 
 
-def handler(datapoints, context):
-    # datapoints is a native python data structure, not the raw json string
+def handler(resource_packets, context):
+    # resource_packets is a native python data structure, not the raw json string
     # you expect. This conversion is handled by Lambda automatically.
 
-    prediction_strategy = predict.get_strategy()
-    orders = None
+    strategy = strategies.get_strategy()
+    command = None
 
-    for datapoint in datapoints:
-        db.get_db().write_item(datapoint, 'usage')
-        orders = prediction_strategy.predict(datapoint)
+    for resource_packet in resource_packets:
+        db.get_db().write(resource_packet)
+        command = strategy.generate_command(resource_packet)
 
-    return orders
+    return command

@@ -39,8 +39,10 @@ def send_status():
     battery_status_response = requests.get(battery_status_url)
 
     battery_status = json.loads(battery_status_response.text)
-    tumalow_packet = data._build_tumalow_packet(
+    tumalow_packet = data._build_tumalow_packet_bretton(
         battery_status['output'], battery_status['soc'], battery_status['ts'])
+
+    # print tumalow_packet
 
     command_response = requests.post(
         api_gateway_url, data=json.dumps(tumalow_packet))

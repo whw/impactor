@@ -82,17 +82,17 @@ class DynamoDB(BaseDB):
 
         return dynamodb.scan(TableName=self.table_name)
 
-    def write_item(self, data, table_name):
+    def write_item(self, resource_packet):
+        raise "still need to solve the table name problem"
+
         dynamodb_client = boto3.client(
             'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        device_id = data.pop('device_id')
-
         # NOTE(whw): Numbers are always sent to DynamoDB as strings
         item = {
-            'deviceId': {'S': device_id},
-            'timestamp': {'N': str(data['ts'])},
-            'data': {'S': json.dumps(data)},
+            'deviceId': {'S': resource_packet['resource']},
+            'timestamp': {'N': str(resource_packet['ts'])},
+            'data': {'S': json.dumps(resource_packet['data'])},
         }
 
-        dynamodb_client.put_item(TableName=self.table_name, Item=item)
+        dynamodb_client.put_item(TableName='usage', Item=item)

@@ -21,5 +21,5 @@ class BaseDB():
         raise "Not implemented"
 
     @abstractmethod
-    def write_item(self, data, table_name):
+    def write(self, resource_packet):
         raise "Not implemented"

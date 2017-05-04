@@ -1,0 +1,87 @@
+from datetime import datetime
+import json
+import os
+from cassandra.cqlengine import connection, columns
+from cassandra.cqlengine.management import create_keyspace_simple, drop_table, sync_table
+from cassandra.cqlengine.models import Model
+
+import tCass.db_client as dbc
+from basedb import BaseDB
+
+# NOTE(whw): This fixes a warning.
+os.environ["CQLENG_ALLOW_SCHEMA_MANAGEMENT"] = "true"
+
+
+# class UsageModel(Model):
+#     modified = columns.DateTime()
+#     year = columns.Integer(primary_key=True)
+#     ts = columns.DateTime(primary_key=True, clustering_order='DESC')
+#     usage = columns.Float()
+#     total_demand = columns.Float()
+#     soc = columns.Float()
+#     output = columns.Float()
+#     regd_ts = columns.DateTime()
+
+#     access_name = 'usage'
+
+
+# def get_models(resource_id):
+#     if resource_id == 'foo':
+#         return [UsageModel]
+#     else:
+#         print('Could not obtain models for resource: ' + resource_id)
+#         raise
+
+
+class CassandraDB(BaseDB):
+
+    def __init__(self):
+        # cassandra_ip = os.getenv('T_CASSANDRA_IP', 'localhost')
+        # self.session = connection.setup([cassandra_ip], "ops")
+        # create_keyspace_simple("ops", 1)
+        self.client = dbc.dataClient(keyspace='lambda')
+
+    def create_table(self, table_name):
+        # model = get_model(table_name)
+        # sync_table(model)
+        self.client.build_keyspace()
+        # False
+
+    def delete_table(self, table_name):
+        # model = get_model(table_name)
+        # drop_table(model)
+        False
+
+    def count_items(self, table_name):
+        # model = get_model(table_name)
+        # return model.objects.count()
+        False
+
+    def scan_table(self, table_name):
+        # model = get_model(table_name)
+        # items = []
+        # for datapoint in model.objects().all():
+        #     items.append(datapoint.items())
+
+        # return items
+        False
+
+    def write(self, resource_packet):
+        self.client.process_packet(resource_packet)
+        # resouce_id = resource_packet['resource-id']
+
+        # models = get_models(resource_id)
+
+        # for model in models:
+        #     model.write(resource_packet['data'])
+
+        # model.create(
+        #     modified=now,
+        #     year=now.year,
+        #     ts=data['ts'],
+        #     usage=data['usage'],
+        #     total_demand=data['billing_demand'],
+        #     soc=data['soc'],
+        #     output=data['output'],
+        #     regd_ts=data['regd_ts'],
+        # ).save()
