@@ -18,7 +18,10 @@ class CassandraDB(BaseDB):
         # cassandra_ip = os.getenv('T_CASSANDRA_IP', 'localhost')
         # self.session = connection.setup([cassandra_ip], "ops")
         # create_keyspace_simple("ops", 1)
-        self.client = dbc.dataClient(keyspace='lambda')
+        stage = os.getenv('T_STAGE', 'dev')
+        keyspace = stage + '_ops'
+
+        self.client = dbc.dataClient(keyspace=keyspace)
 
     def create_table(self, table_name):
         self.client.build_keyspace()

@@ -2,6 +2,7 @@ import os
 
 
 def get_db(name='cassandra'):
+    # Allow for picking the DB via an environment variable
     name = os.getenv('T_DATABASE', name)
 
     if name == 'dynamodb':
