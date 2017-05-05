@@ -1,4 +1,6 @@
+.vagrant
 _build/
 output.txt
+tCass.egg-info/
 *.pyc
-.vagrant
+

@@ -9,5 +9,5 @@ class SimpleStrategy(BaseStrategy):
         return json.dumps({
             "ts": resource_packet['ts'],
             "cmd": "output",
-            "power": 0
+            "power": 1
         })

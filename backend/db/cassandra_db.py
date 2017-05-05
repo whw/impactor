@@ -12,27 +12,6 @@ from basedb import BaseDB
 os.environ["CQLENG_ALLOW_SCHEMA_MANAGEMENT"] = "true"
 
 
-# class UsageModel(Model):
-#     modified = columns.DateTime()
-#     year = columns.Integer(primary_key=True)
-#     ts = columns.DateTime(primary_key=True, clustering_order='DESC')
-#     usage = columns.Float()
-#     total_demand = columns.Float()
-#     soc = columns.Float()
-#     output = columns.Float()
-#     regd_ts = columns.DateTime()
-
-#     access_name = 'usage'
-
-
-# def get_models(resource_id):
-#     if resource_id == 'foo':
-#         return [UsageModel]
-#     else:
-#         print('Could not obtain models for resource: ' + resource_id)
-#         raise
-
-
 class CassandraDB(BaseDB):
 
     def __init__(self):
@@ -42,10 +21,7 @@ class CassandraDB(BaseDB):
         self.client = dbc.dataClient(keyspace='lambda')
 
     def create_table(self, table_name):
-        # model = get_model(table_name)
-        # sync_table(model)
         self.client.build_keyspace()
-        # False
 
     def delete_table(self, table_name):
         # model = get_model(table_name)
@@ -53,8 +29,6 @@ class CassandraDB(BaseDB):
         False
 
     def count_items(self, table_name):
-        # model = get_model(table_name)
-        # return model.objects.count()
         False
 
     def scan_table(self, table_name):

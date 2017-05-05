@@ -5,18 +5,10 @@ lambdas:
     handler: oracle.handler
     runtime: python2.7
     timeout: 31
-    memory: 512
+    memory: 128
     build:
       - cp -Rf * {target}
       - docker run --rm -v {target}:/var/task -v {project_path}/tCass:/tCass lambci/lambda:build-python2.7 pip install -r requirements.txt -t /var/task
-      # - docker run --rm -v {target}:/var/task -v {project_path}/tCass:/tCass lambci/lambda:build-python2.7 ls /tCass > /tmp/target/requirements.txt
-    # build:
-    #   - echo {pip_path} > /tmp/pp
-    #   - "{pip_path} -V > /tmp/ppv"
-    #   - cp -Rf * {target}
-    #   - echo "[install]\nprefix=" > {target}/setup.cfg
-    #   - "{pip_path} install -r requirements.txt -q -t {target} {pip_install_extra}"
-    #   - cd {target} && find . -name "*.pyc" -delete
     policies:
       write_dynamo:
         Version: "2012-10-17"
@@ -31,13 +23,3 @@ lambdas:
               - "dynamodb:UpdateItem"
             Resource: "*"
             Effect: "Allow"
-    # pip-path: "~/miniconda2/envs/build/bin/pip"
-
-# lambdas:
-#   helloworld: # lambda name
-#     code: helloworld # folder name
-#     handler: code.handler # file.method_name
-#     runtime: python
-#     #description: Simple functions in python which says hello
-#     #role:
-#     #memory:

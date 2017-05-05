@@ -1,4 +1,13 @@
 #!/bin/bash
 
-# gordon apply --stage=test1
-gordon apply
+case $1 in
+    --prod)
+    STAGE=prod
+    ;;
+    *)
+    STAGE=staging
+    ;;
+esac
+
+time gordon apply --stage=$STAGE
+
