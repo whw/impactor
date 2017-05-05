@@ -8,6 +8,7 @@ import sched
 import sys
 import time
 
+import tCass.resources.Bretton.packet as packet
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from backend import data
@@ -41,7 +42,7 @@ def send_status():
     battery_status_response = requests.get(battery_status_url)
 
     battery_status = json.loads(battery_status_response.text)
-    tumalow_packet = data._build_tumalow_packet_bretton(
+    tumalow_packet = packet._build_resource_packet(
         battery_status['output'], battery_status['soc'], battery_status['ts'])
 
     command_response = requests.post(

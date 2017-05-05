@@ -3,6 +3,16 @@ import json
 import os
 from basedb import BaseDB
 
+##############################################################################
+# WARNING: This file has fallen out of date - particularly how to write such
+# items as the Bretton resource packet and how to handle the lack of keyspaces
+# in DynamoDB.
+#
+# These are fixable problems, but if you're reading this warning they haven't
+# been fixed yet. Until then, this file exists as a mostly-implemented starting
+# point.
+##############################################################################
+
 
 class DynamoDB(BaseDB):
 
@@ -82,7 +92,7 @@ class DynamoDB(BaseDB):
 
         return dynamodb.scan(TableName=self.table_name)
 
-    def write_item(self, resource_packet):
+    def write(self, resource_packet):
         raise "still need to solve the table name problem"
 
         dynamodb_client = boto3.client(
