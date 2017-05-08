@@ -1,7 +1,8 @@
 import json
+import time
 import unittest
 
-from backend import oracle, status
+from backend import oracle, data
 from backend.db import db
 
 db = db.get_db()
@@ -11,22 +12,23 @@ class TestOracle(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print(db.get_config())
         db.create_table()
 
     def test_orders(self):
-        orders1 = oracle.handler(status._build_status(-1), None)
+        orders1 = oracle.handler(
+            data._build_tumalow_packet(-1, 10.0, time.time()), None)
         self.assertEqual(0, json.loads(orders1)['power'])
-        self.assertEqual(1, db.number_of_items_in_table())
-        # self.assertEqual('', db.scan_table())
+        self.assertEqual(1, db.count_items())
 
-        orders2 = oracle.handler(status._build_status(0), None)
+        orders2 = oracle.handler(
+            data._build_tumalow_packet(0, 10.0, time.time()), None)
         self.assertEqual(1, json.loads(orders2)['power'])
-        self.assertEqual(2, db.number_of_items_in_table())
+        self.assertEqual(2, db.count_items())
 
-        orders3 = oracle.handler(status._build_status(1), None)
+        orders3 = oracle.handler(
+            data._build_tumalow_packet(1, 10.0, time.time()), None)
         self.assertEqual(-1, json.loads(orders3)['power'])
-        self.assertEqual(3, db.number_of_items_in_table())
+        self.assertEqual(3, db.count_items())
 
     @classmethod
     def tearDownClass(cls):

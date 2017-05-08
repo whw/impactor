@@ -5,5 +5,5 @@ class BaseStrategy():
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def predict(self, device_id, data):
+    def generate_command(self, resource_packet):
         raise "Not implemented"

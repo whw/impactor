@@ -1,0 +1,15 @@
+#!/bin/bash
+
+case $1 in
+    --prod)
+    STAGE=prod
+    echo "Deploying to production."
+    ;;
+    *)
+    STAGE=staging
+    echo "Deploying to staging."
+    ;;
+esac
+
+time gordon apply --stage=$STAGE
+

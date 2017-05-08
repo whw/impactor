@@ -4,26 +4,34 @@ import json
 import os
 import requests
 import sys
+import time
 import unittest
 
 # So we can import from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from backend import status
+from backend import data
 from backend.db import db
 
-dynamodb = db.get_db()
+database = db.get_db()
 
-# FIX(whw): Including the relative (to the runner of the script) path to
-# the file here is jank and brittle. This code is also duplicated :-(
-with open('api-gateway-url.txt', 'r') as f:
-    API_GATEWAY_URL = f.read().strip()
-f.closed
+DEV_PORT = '8888'
+
+# API_GATEWAY_URL = "https://api.tumalow.com/status/dev"
+stage = os.getenv('T_STAGE', 'dev')
+if stage == 'dev':
+    api_gateway_url = "http://localhost:" + DEV_PORT
+elif stage == 'prod':
+    api_gateway_url = "https://api.tumalow.com/status/dev"
+else:
+    print('Invalid stage: ' + stage)
+    raise
 
 
-def send_status(output):
-    data = json.dumps(status._build_status(output))
+def send_usage(output):
+    usage_data = json.dumps(
+        data._build_tumalow_packet(output, 10.0, time.time()))
 
-    r = requests.post(API_GATEWAY_URL, data=data)
+    r = requests.post(api_gateway_url, data=usage_data)
     raw_response = r.json()
     response = json.loads(raw_response)
 
@@ -33,18 +41,15 @@ def send_status(output):
 class TestIntegrationOracle(unittest.TestCase):
 
     def test_orders(self):
-        initial_count = dynamodb.number_of_items_in_table()
-        self.assertEqual(send_status(-1), 0)
-        self.assertEqual(
-            1, dynamodb.number_of_items_in_table() - initial_count)
+        initial_count = database.count_items('usage')
+        self.assertEqual(send_usage(-1), -1)
+        self.assertEqual(1, database.count_items('usage') - initial_count)
 
-        self.assertEqual(send_status(0), 1)
-        self.assertEqual(
-            2, dynamodb.number_of_items_in_table() - initial_count)
+        self.assertEqual(send_usage(0), 0)
+        self.assertEqual(2, database.count_items('usage') - initial_count)
 
-        self.assertEqual(send_status(1), -1)
-        self.assertEqual(
-            3, dynamodb.number_of_items_in_table() - initial_count)
+        self.assertEqual(send_usage(1), 1)
+        self.assertEqual(3, database.count_items('usage') - initial_count)
 
 
 unittest.main()

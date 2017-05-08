@@ -1,20 +1,14 @@
 ---
 project: skunk
-default-region: us-west-2
+default-region: us-east-1
 code-bucket: gordon-skunk-69d5f387
 apps:
   - gordon.contrib.lambdas
   - backend
 
-# contexts:
-#     default:
-#         table_name: FleetStatus
-#         region: us-west-2
-#         dynamodb_url:
-
 apigateway:
-  helloworldapi:
-    description: My Api example
+  tumalowapi:
+    description: Tumalow API
     resources:
       /:
         methods: POST

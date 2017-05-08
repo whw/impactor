@@ -3,38 +3,39 @@ import json
 import os
 from basedb import BaseDB
 
+##############################################################################
+# WARNING: This file has fallen out of date - particularly how to write such
+# items as the Bretton resource packet and how to handle the lack of keyspaces
+# in DynamoDB.
+#
+# These are fixable problems, but if you're reading this warning they haven't
+# been fixed yet. Until then, this file exists as a mostly-implemented starting
+# point.
+##############################################################################
+
 
 class DynamoDB(BaseDB):
 
-    def get_config(self):
+    def __init__(self):
         stage = os.getenv('T_STAGE', 'dev')
-        region = 'us-west-2'
+        self.region = 'us-west-2'
 
         if stage == 'dev':
-            table_name = 'dev_FleetStatus'
-            dynamodb_url = 'http://localhost:8000'
-        elif stage == 'test':
-            table_name = 'test_FleetStatus'
-            dynamodb_url = 'http://localhost:8000'
+            self.table_name = 'dev_FleetStatus'
+            self.dynamodb_url = 'http://localhost:8000'
         elif stage == 'prod':
-            table_name = 'FleetStatus'
-            dynamodb_url = None
+            self.table_name = 'FleetStatus'
+            self.dynamodb_url = None
         else:
-            print('Invalid stage recieved: ' + stage)
+            print('Invalid stage: ' + stage)
             raise
 
-        # print(table_name + " " + region)
-        # print(dynamodb_url)
-
-        return (table_name, region, dynamodb_url)
-
-    def create_table(self):
-        table_name, region, dynamodb_url = self.get_config()
+    def create_table(self, table_name):
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
         table = dynamodb.create_table(
-            TableName=table_name,
+            TableName=self.table_name,
             KeySchema=[
                 {
                     'AttributeName': 'deviceId',
@@ -62,32 +63,46 @@ class DynamoDB(BaseDB):
             }
         )
 
-        dynamodb.get_waiter('table_exists').wait(TableName=table_name)
+        dynamodb.get_waiter('table_exists').wait(TableName=self.table_name)
 
-        print("Created " + table_name + " in " + region + " accessible at")
-        print(dynamodb_url)
+        print("Created " + self.table_name +
+              " in " + self.region + " accessible at")
+        print(self.dynamodb_url)
 
-    def number_of_items_in_table(self):
-        table_name, region, dynamodb_url = self.get_config()
+    def delete_table(self, table_name):
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        return dynamodb.scan(TableName=table_name)['Count']
+        dynamodb.delete_table(TableName=self.table_name)
+        dynamodb.get_waiter('table_not_exists').wait(TableName=self.table_name)
 
-    def delete_table(self):
-        table_name, region, dynamodb_url = self.get_config()
+        print("Deleted " + self.table_name +
+              " in " + self.region + " accessible at")
+        print(self.dynamodb_url)
+
+    def count_items(self, table_name):
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        dynamodb.delete_table(TableName=table_name)
-        dynamodb.get_waiter('table_not_exists').wait(TableName=table_name)
+        return dynamodb.scan(TableName=self.table_name)['Count']
 
-        print("Deleted " + table_name + " in " + region + " accessible at")
-        print(dynamodb_url)
-
-    def scan_table(self):
-        table_name, region, dynamodb_url = self.get_config()
+    def scan_table(self, table_name):
         dynamodb = boto3.client(
-            'dynamodb', region_name=region, endpoint_url=dynamodb_url)
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
 
-        return dynamodb.scan(TableName=table_name)
+        return dynamodb.scan(TableName=self.table_name)
+
+    def write(self, resource_packet):
+        raise "still need to solve the table name problem"
+
+        dynamodb_client = boto3.client(
+            'dynamodb', region_name=self.region, endpoint_url=self.dynamodb_url)
+
+        # NOTE(whw): Numbers are always sent to DynamoDB as strings
+        item = {
+            'deviceId': {'S': resource_packet['resource']},
+            'timestamp': {'N': str(resource_packet['ts'])},
+            'data': {'S': json.dumps(resource_packet['data'])},
+        }
+
+        dynamodb_client.put_item(TableName='usage', Item=item)

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+(docker run -d --rm --name cassandra-local -p 9042:9042 cassandra 2>&1 > /dev/null \
+  && echo "Local instance of Cassandra started.") || echo "Error starting Cassandra"

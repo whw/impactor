@@ -3,7 +3,12 @@ lambdas:
     description: Function that responds to what the pi should do next
     code: .
     handler: oracle.handler
-    runtime: python
+    runtime: python2.7
+    timeout: 31
+    memory: 128
+    build:
+      - cp -Rf * {target}
+      - docker run --rm -v {target}:/var/task -v {project_path}/tCass:/tCass lambci/lambda:build-python2.7 pip install -r requirements.txt -t /var/task
     policies:
       write_dynamo:
         Version: "2012-10-17"
@@ -18,12 +23,3 @@ lambdas:
               - "dynamodb:UpdateItem"
             Resource: "*"
             Effect: "Allow"
-
-# lambdas:
-#   helloworld: # lambda name
-#     code: helloworld # folder name
-#     handler: code.handler # file.method_name
-#     runtime: python
-#     #description: Simple functions in python which says hello
-#     #role:
-#     #memory:

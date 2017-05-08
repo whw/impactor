@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import boto3
 import os
 import sys
 
@@ -8,4 +7,4 @@ import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from backend.db import db
 
-db.get_db().delete_table('usage')
+print "Count: " + str(db.get_db().count_items('usage'))

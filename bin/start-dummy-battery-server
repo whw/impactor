@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+import json
+import os
+import random
+import sys
+import time
+
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+
+
+class BatteryStatusHandler(BaseHTTPRequestHandler):
+    soc = 6.0
+
+    def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+
+    def do_GET(self):
+        if self.path.split('/')[-1] != 'd687f78d-8327-44aa-ae28-1e00bbbbc174':
+            self.send_response(401)
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "Invalid secret"}))
+            return
+
+        self._set_headers()
+
+        output = random.uniform(-1.0, 1.0)
+
+        battery_status = {
+            "status": "operational",
+            "output": output,
+            "soc": BatteryStatusHandler.soc,
+            "ts": time.time(),
+        }
+
+        self.wfile.write(json.dumps(battery_status))
+
+        BatteryStatusHandler.soc -= output
+        if BatteryStatusHandler.soc > 12.0:
+            BatteryStatusHandler.soc = 12.0
+
+
+def run(server_class=HTTPServer, handler_class=BatteryStatusHandler, port=39999):
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    print 'Starting dummy battery status server...'
+    httpd.serve_forever()
+
+if __name__ == "__main__":
+    from sys import argv
+
+    if len(argv) == 2:
+        run(port=int(argv[1]))
+    else:
+        run()
